@@ -22,15 +22,20 @@ export class UserService {
     user.email = form.email;
     user.passwordHash = passwordHash;
     this.userRepository.save(user);
-    this.authService.signIn(user);
   }
 
   async signIn(form: AuthForm) {
     const user = await this.findOneByEmail(form.email);
-    if (!bcrypt.compareSync(form.password, user.passwordHash)) {
+    if (!user || !bcrypt.compareSync(form.password, user.passwordHash)) {
       throw new UnauthorizedException();
     }
-    return this.authService.signIn(user);
+    return {
+      jwtToken: await this.authService.signIn(user),
+      user: {
+        email: user.email,
+        name: user.name,
+      },
+    };
   }
 
   findAll() {

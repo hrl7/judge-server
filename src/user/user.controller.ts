@@ -1,4 +1,5 @@
-import { Controller, Post, Body, Get, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Get, UseGuards, Req } from '@nestjs/common';
+import { Request } from 'express';
 import { UserService } from './user.service';
 import { AuthForm } from './forms/auth.form';
 import { AuthGuard } from '@nestjs/passport';
@@ -19,8 +20,14 @@ export class UserController {
   }
 
   @Get()
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard())
   findAll() {
     return this.userService.findAll();
+  }
+
+  @Get('me')
+  @UseGuards(AuthGuard())
+  currentUser(@Req() req: Request) {
+    return req.user;
   }
 }
